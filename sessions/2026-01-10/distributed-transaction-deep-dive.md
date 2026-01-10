@@ -39,6 +39,7 @@
 - **调用顺序**: 严格统一资源调用顺序（如先扣库存后扣积分）以防止死锁。
 
 ## 🎨 标准架构图 (Seata AT 下单流程)
+```mermaid
 sequenceDiagram
     autonumber
     actor User as 用户
@@ -94,12 +95,11 @@ sequenceDiagram
         Note right of TM: Phase 2: 异步提交
         TM->>TC: GlobalCommit (提交 XID: tx_123)
         TC-->>TM: 提交成功 (状态落盘)
-        TM-->>User: 下单成功 (用户无需等待清理)
+        TM-->>User: 下单成功 (无需等待清理)
     end
 
-    %% --- 异步清理 (如果不显示 par 可删掉下面几行) ---
-    par 异步清理 UndoLog
-        TC-)RM_Order: BranchCommit (清理日志)
-        TC-)RM_Stock: BranchCommit (清理日志)
-        TC-)RM_Points: BranchCommit (清理日志)
-    end
+    %% --- 异步清理 ---
+    TC-)RM_Order: BranchCommit (清理日志)
+    TC-)RM_Stock: BranchCommit (清理日志)
+    TC-)RM_Points: BranchCommit (清理日志)
+```
